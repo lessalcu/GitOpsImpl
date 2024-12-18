@@ -1,0 +1,41 @@
+name: Build and Push Docker image
+
+on:
+  push:
+    branches:
+      - main  # o la rama en la que desees hacer el push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2  # Para obtener el código del repositorio
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2  # Configura Buildx para el build
+
+    - name: Cache Docker layers
+      uses: actions/cache@v2  # Cache para mejorar la velocidad de la construcción
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2  # Log in a Docker Hub
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build Docker image
+      run: |
+        docker build -t lssalas/hello-world-app:latest .  # Construir la imagen
+        docker tag lssalas/hello-world-app:latest lssalas/hello-world-app:${{ github.sha }}  # Etiquetar con el hash de commit
+
+    - name: Push Docker image
+      run: |
+        docker push lssalas/hello-world-app:latest  # Subir la imagen 'latest'
+        docker push lssalas/hello-world-app:${{ github.sha }}  # Subir la imagen con el hash de commit
