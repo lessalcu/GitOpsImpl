@@ -21,7 +21,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          cd GitOpsImpl/my-app  # Cambia al directorio donde está el Dockerfile
+          cd my-app  # Cambia al directorio donde está el Dockerfile
           docker build -t lssalas/hello-world-app:latest .  # Construir la imagen
           
       - name: Push Docker image to Docker Hub
